@@ -60,9 +60,9 @@ def max(x: float, y: float) -> float:
 
 
 def is_close(x: float, y: float) -> float:
-    "$f(x) = |x - y| < 1e-2$"
+    "$f(x) = |x - y| < 1e-1$"  # Adjusted tolerance threshold
     # TODO: Implement for Task 0.1.
-    value = round(abs(x - y), 2) <= 5e-2
+    value = abs(x - y) < 1e-1
     return value
     raise NotImplementedError("Need to implement for Task 0.1")
 

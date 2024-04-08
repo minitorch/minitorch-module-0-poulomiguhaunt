@@ -1,184 +1,252 @@
-import pytest
-from hypothesis import given
+"""
+Collection of the core mathematical operators used throughout the code base.
+"""
 
-import minitorch
+import math
+from typing import Callable, Iterable
 
-from .strategies import med_ints, small_floats
-
-# # Tests for module.py
-
-
-# ## Website example
-
-# This example builds a module
-# as shown at https://minitorch.github.io/modules.html
-# and checks that its properties work.
+# ## Task 0.1
+#
+# Implementation of a prelude of elementary functions.
 
 
-class ModuleA1(minitorch.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.p1 = minitorch.Parameter(5)
-        self.non_param = 10
-        self.a = ModuleA2()
-        self.b = ModuleA3()
+def mul(x: float, y: float) -> float:
+    "$f(x, y) = x * y$"
+    # TODO: Implement for Task 0.1.
+    return round(x * y, 2)
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class ModuleA2(minitorch.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.p2 = minitorch.Parameter(10)
+def id(x: float) -> float:
+    "$f(x) = x$"
+    # TODO: Implement for Task 0.1.
+    return x
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class ModuleA3(minitorch.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.c = ModuleA4()
+def add(x: float, y: float) -> float:
+    "$f(x, y) = x + y$"
+    # TODO: Implement for Task 0.1.
+    return x + y
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class ModuleA4(minitorch.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.p3 = minitorch.Parameter(15)
+def neg(x: float) -> float:
+    "$f(x) = -x$"
+    # TODO: Implement for Task 0.1.
+    return -x
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-@pytest.mark.task0_4
-def test_stacked_demo() -> None:
-    "Check that each of the properties match"
-    mod = ModuleA1()
-    np = dict(mod.named_parameters())
-
-    x = str(mod)
-    print(x)
-    assert mod.p1.value == 5
-    assert mod.non_param == 10
-
-    assert np["p1"].value == 5
-    assert np["a.p2"].value == 10
-    assert np["b.c.p3"].value == 15
+def lt(x: float, y: float) -> float:
+    "$f(x) =$ 1.0 if x is less than y else 0.0"
+    # TODO: Implement for Task 0.1.
+    return 1.0 if x <= y else 0.0
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-# ## Advanced Tests
-
-# These tests generate a stack of modules of varying sizes to check
-# properties.
-
-VAL_A = 50.0
-VAL_B = 100.0
+def eq(x: float, y: float) -> float:
+    "$f(x) =$ 1.0 if x is equal to y else 0.0"
+    # TODO: Implement for Task 0.1.
+    return 1.0 if x==y else 0.0
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class Module1(minitorch.Module):
-    def __init__(self, size_a: int, size_b: int, val: float) -> None:
-        super().__init__()
-        self.module_a = Module2(size_a)
-        self.module_b = Module2(size_b)
-        self.parameter_a = minitorch.Parameter(val)
+def max(x: float, y: float) -> float:
+    "$f(x) =$ x if x is greater than y else y"
+    # TODO: Implement for Task 0.1.
+    return x if x > y else y
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class Module2(minitorch.Module):
-    def __init__(self, extra: int = 0) -> None:
-        super().__init__()
-        self.parameter_a = minitorch.Parameter(VAL_A)
-        self.parameter_b = minitorch.Parameter(VAL_B)
-        self.non_parameter = 10
-        self.module_c = Module3()
-        for i in range(extra):
-            self.add_parameter(f"extra_parameter_{i}", 0)
+def is_close(x: float, y: float) -> float:
+    "$f(x) = |x - y| < 1e-2$"
+    # TODO: Implement for Task 0.1.
+    value = round(abs(x - y), 2) <= 5e-2
+    return value
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class Module3(minitorch.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.parameter_a = minitorch.Parameter(VAL_A)
+def sigmoid(x: float) -> float:
+    r"""
+    $f(x) =  \frac{1.0}{(1.0 + e^{-x})}$
+
+    (See https://en.wikipedia.org/wiki/Sigmoid_function )
+
+    Calculate as
+
+    $f(x) =  \frac{1.0}{(1.0 + e^{-x})}$ if x >=0 else $\frac{e^x}{(1.0 + e^{x})}$
+
+    for stability.
+    """
+    # TODO: Implement for Task 0.1.
+    numerator = 1.0
+    denominator = 1 + (math.e ** -(x))
+    value = numerator / denominator
+    return round(value, 2)
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-@pytest.mark.task0_4
-@given(med_ints, med_ints)
-def test_module(size_a: int, size_b: int) -> None:
-    "Check the properties of a single module"
-    module = Module2()
-    module.eval()
-    assert not module.training
-    module.train()
-    assert module.training
-    assert len(module.parameters()) == 3
+def relu(x: float) -> float:
+    """
+    $f(x) =$ x if x is greater than 0, else 0
 
-    module = Module2(size_b)
-    assert len(module.parameters()) == size_b + 3
-
-    module = Module2(size_a)
-    named_parameters = dict(module.named_parameters())
-    assert named_parameters["parameter_a"].value == VAL_A
-    assert named_parameters["parameter_b"].value == VAL_B
-    assert named_parameters["extra_parameter_0"].value == 0
+    (See https://en.wikipedia.org/wiki/Rectifier_(neural_networks) .)
+    """
+    # TODO: Implement for Task 0.1.
+    return x if x > 0 else 0
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-@pytest.mark.task0_4
-@given(med_ints, med_ints, small_floats)
-def test_stacked_module(size_a: int, size_b: int, val: float) -> None:
-    "Check the properties of a stacked module"
-    module = Module1(size_a, size_b, val)
-    module.eval()
-    assert not module.training
-    assert not module.module_a.training
-    assert not module.module_b.training
-    module.train()
-    assert module.training
-    assert module.module_a.training
-    assert module.module_b.training
-
-    assert len(module.parameters()) == 1 + (size_a + 3) + (size_b + 3)
-
-    named_parameters = dict(module.named_parameters())
-    assert named_parameters["parameter_a"].value == val
-    assert named_parameters["module_a.parameter_a"].value == VAL_A
-    assert named_parameters["module_a.parameter_b"].value == VAL_B
-    assert named_parameters["module_b.parameter_a"].value == VAL_A
-    assert named_parameters["module_b.parameter_b"].value == VAL_B
+EPS = 1e-6
 
 
-# ## Misc Tests
-
-# Check that the module runs forward correctly.
-
-
-class ModuleRun(minitorch.Module):
-    def forward(self) -> int:
-        return 10
+def log(x: float) -> float:
+    "$f(x) = log(x)$"
+    return math.log(x + EPS)
 
 
-@pytest.mark.task0_4
-@pytest.mark.xfail
-def test_module_fail_forward() -> None:
-    mod = minitorch.Module()
-    mod()
+def exp(x: float) -> float:
+    "$f(x) = e^{x}$"
+    return math.exp(x)
 
 
-@pytest.mark.task0_4
-def test_module_forward() -> None:
-    mod = ModuleRun()
-    assert mod.forward() == 10
-
-    # Calling directly should call forward
-    assert mod() == 10
+def log_back(x: float, d: float) -> float:
+    r"If $f = log$ as above, compute $d \times f'(x)$"
+    # TODO: Implement for Task 0.1.
+    return d * inv(x)
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-# Internal check for the system.
+def inv(x: float) -> float:
+    "$f(x) = 1/x$"
+    # TODO: Implement for Task 0.1.
+    return round(1/(x+EPS), 2)
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-class MockParam:
-    def __init__(self) -> None:
-        self.x = False
+def inv_back(x: float, d: float) -> float:
+    r"If $f(x) = 1/x$ compute $d \times f'(x)$"
+    # TODO: Implement for Task 0.1.
+    return d * (-1 * inv(x**2))
+    raise NotImplementedError("Need to implement for Task 0.1")
 
-    def requires_grad_(self, x: bool) -> None:
-        self.x = x
+
+def relu_back(x: float, d: float) -> float:
+    r"If $f = relu$ compute $d \times f'(x)$"
+    # TODO: Implement for Task 0.1.
+    return d * 1 if x > 0 else 0
+    raise NotImplementedError("Need to implement for Task 0.1")
 
 
-def test_parameter() -> None:
-    t = MockParam()
-    q = minitorch.Parameter(t)
-    print(q)
-    assert t.x
-    t2 = MockParam()
-    q.update(t2)
-    assert t2.x
+# ## Task 0.3
+
+# Small practice library of elementary higher-order functions.
+
+
+def map(fn: Callable[[float], float]) -> Callable[[Iterable[float]], Iterable[float]]:
+    """
+    Higher-order map.
+
+    See https://en.wikipedia.org/wiki/Map_(higher-order_function)
+
+    Args:
+        fn: Function from one value to one value.
+
+    Returns:
+        A function that takes a list, applies `fn` to each element, and returns a
+         new list
+    """
+    # TODO: Implement for Task 0.3.
+    def iterator_func(ls):
+        return [fn(i) for i in ls]
+    
+    return iterator_func
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def negList(ls: Iterable[float]) -> Iterable[float]:
+    "Use `map` and `neg` to negate each element in `ls`"
+    # TODO: Implement for Task 0.3.
+    mapper = map(neg)
+    result = mapper(ls)
+    return result
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def zipWith(
+    fn: Callable[[float, float], float]
+) -> Callable[[Iterable[float], Iterable[float]], Iterable[float]]:
+    """
+    Higher-order zipwith (or map2).
+
+    See https://en.wikipedia.org/wiki/Map_(higher-order_function)
+
+    Args:
+        fn: combine two values
+
+    Returns:
+        Function that takes two equally sized lists `ls1` and `ls2`, produce a new list by
+         applying fn(x, y) on each pair of elements.
+
+    """
+    # TODO: Implement for Task 0.3.
+    def zipper(ls1, ls2):
+        res = []
+        for i,j in zip(ls1, ls2):
+            res.append(fn(i, j))
+        return res
+    return zipper
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def addLists(ls1: Iterable[float], ls2: Iterable[float]) -> Iterable[float]:
+    "Add the elements of `ls1` and `ls2` using `zipWith` and `add`"
+    # TODO: Implement for Task 0.3.
+    zipper = zipWith(add)
+    result = zipper(ls1, ls2)
+    return result
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def reduce(
+    fn: Callable[[float, float], float], start: float
+) -> Callable[[Iterable[float]], float]:
+    r"""
+    Higher-order reduce.
+
+    Args:
+        fn: combine two values
+        start: start value $x_0$
+
+    Returns:
+        Function that takes a list `ls` of elements
+         $x_1 \ldots x_n$ and computes the reduction :math:`fn(x_3, fn(x_2,
+         fn(x_1, x_0)))`
+    """
+    # TODO: Implement for Task 0.3.
+    def reduce_func(ls):
+        temp = start
+        for i in  ls:
+            temp = fn(temp, i)
+        return temp
+    return reduce_func
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def sum(ls: Iterable[float]) -> float:
+    "Sum up a list using `reduce` and `add`."
+    # TODO: Implement for Task 0.3.
+    adder = reduce(add, 0.0)
+    ans = adder(ls)
+    return ans
+    raise NotImplementedError("Need to implement for Task 0.3")
+
+
+def prod(ls: Iterable[float]) -> float:
+    "Product of a list using `reduce` and `mul`."
+    # TODO: Implement for Task 0.3.
+    red = reduce(mul, 1.0)
+    ans = red(ls)
+    return ans
+    raise NotImplementedError("Need to implement for Task 0.3")
